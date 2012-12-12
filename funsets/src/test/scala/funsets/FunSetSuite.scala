@@ -86,7 +86,7 @@ class FunSetSuite extends FunSuite {
    * Once you finish your implementation of "singletonSet", exchange the
    * function "ignore" by "test".
    */
-  ignore("singletonSet(1) contains 1") {
+  test("singletonSet(1) contains 1") {
     
     /**
      * We create a new instance of the "TestSets" trait, this gives us access
@@ -101,12 +101,80 @@ class FunSetSuite extends FunSuite {
     }
   }
 
-  ignore("union contains all elements") {
+  test("union contains all elements") {
     new TestSets {
       val s = union(s1, s2)
       assert(contains(s, 1), "Union 1")
       assert(contains(s, 2), "Union 2")
       assert(!contains(s, 3), "Union 3")
     }
+  }
+  
+  test("empty intersection doesn't contain any of the elements") {
+    new TestSets {
+      val s = intersect(s1, s2)
+      assert(!contains(s, 1), "Empty intersection 1")
+      assert(!contains(s, 2), "Empty intersection 2")
+      assert(!contains(s, 3), "Empty intersection 3")
+    }
+  }
+  
+  test("non-empty intersection only contain the common element") {
+    new TestSets {
+      val s = intersect(s3, s3)
+      assert(!contains(s, 1), "Non-empty intersection 1")
+      assert(!contains(s, 2), "Non-empty intersection 2")
+      assert(contains(s, 3), "Non-empty intersection 3")
+    }
+  }
+
+  test("difference") {
+    new TestSets {
+      val s = diff(s1, s2)
+      assert(contains(s, 1), "Difference 1")
+      assert(!contains(s, 2), "Difference 2")
+      assert(!contains(s, 3), "Difference 3")
+    }
+  }
+
+  test("filter {1} with x => x > 0") {
+    new TestSets {
+      val s = filter(s1, (x: Int) => x > 0)
+      assert(contains(s, 1), "contains 1")
+    }
+  }
+
+  test("filter {1} with x => x > 1") {
+    new TestSets {
+      val s = filter(s1, (x: Int) => x > 1)
+      assert(!contains(s, 1), "doesn't contain 1")
+    }
+  }
+  
+  test("forall {1,2,3}") {
+    new TestSets {
+      val s = union(union(s1, s2), s3)
+      assert(forall(s, (x: Int) => x == 1 || x == 2 || x == 3), "x == 1 || x == 2 || x == 3")
+      assert(!forall(s, (x: Int) => x == 1), "not x == 1")
+      assert(!forall(s, (x: Int) => x == 2), "not x == 2")
+      assert(!forall(s, (x: Int) => x == 3), "not x == 3")
+    }    
+  }
+  
+  test("exists {1,2,3}") {
+    new TestSets {
+      val s = union(union(s1, s2), s3)
+      assert(exists(s, (x: Int) => x == 1), "x == 1")
+      assert(exists(s, (x: Int) => x == 2 || x == 3), "x == 2 || x == 3")
+      assert(!exists(s, (x: Int) => x != 1 && x != 2 && x != 3), "not (x != 1 && x != 2 && x != 3)")
+    }    
+  }
+
+  test("map {1,2,3} with x => 1 + 3 * x") {
+    new TestSets {
+      val s = map(union(union(s1, s2), s3), (x: Int) => 1 + 3 * x)
+      assert(forall(s, (x: Int) => x == 4 || x == 7 || x == 10), "forall {4, 7, 10}, x == 4 || x == 7 || x == 10")
+      assert(!exists(s, (x: Int) => x != 4 && x != 7 && x != 10), "not exist {4, 7, 10} such that x != 4 && x != 7 && x != 10")
+    }    
   }
 }
